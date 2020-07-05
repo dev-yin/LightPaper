@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Checkium <checkium@gmail.com>
+Date: Sun, 5 Jul 2020 23:15:07 +0100
+Subject: [PATCH] LightPaper POM Changes
+
+---
+ pom.xml | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/pom.xml b/pom.xml
+index 06aa32269efe17a6de85ca79d1889d4f5e342868..3f93ec8d181d618309980fd692e31b2878debc25 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -3,18 +3,19 @@
+          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+     <parent>
+-        <groupId>com.destroystokyo.paper</groupId>
+-        <artifactId>paper-parent</artifactId>
++        <groupId>tech.folf.lightpaper</groupId>
++        <artifactId>lightpaper-parent</artifactId>
+         <version>dev-SNAPSHOT</version>
++        <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>com.destroystokyo.paper</groupId>
+-    <artifactId>paper-api</artifactId>
++    <groupId>tech.folf.lightpaper</groupId>
++    <artifactId>lightpaper-api</artifactId>
+     <version>1.16.1-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+ 
+-    <name>Paper-API</name>
+-    <url>https://github.com/PaperMC/Paper</url>
++    <name>LightPaper-API</name>
++    <url>https://github.com/fuwwy/LightPaper</url>
+     <description>An enhanced plugin API for Minecraft servers.</description>
+ 
+     <properties>
