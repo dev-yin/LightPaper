@@ -1,0 +1,26 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>tech.folf.lightpaper</groupId>
+    <artifactId>lightpaper-parent</artifactId>
+    <version>dev-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>LightPaper (Parent)</name>
+
+    <repositories>
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/repositories/aikar/</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+        <finalName>${project.artifactId}</finalName>
+    </build>
+
+    <modules>
+        <module>LightPaper-API</module>
+        <module>LightPaper-Server</module>
+    </modules>
+</project>
