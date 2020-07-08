@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Checkium <checkium@gmail.com>
+Date: Wed, 8 Jul 2020 15:04:29 +0100
+Subject: [PATCH] Add an option to disable data conversion
+
+---
+ .../server/DataConverterRegistry.java         | 22 +++++++++++++++++--
+ src/main/java/net/minecraft/server/Main.java  |  1 +
+ .../net/minecraft/server/SystemUtils.java     |  2 ++
+ .../java/org/bukkit/craftbukkit/Main.java     |  4 ++++
+ 4 files changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/src/main/java/net/minecraft/server/DataConverterRegistry.java b/src/main/java/net/minecraft/server/DataConverterRegistry.java
+index 5d807082281527c78a08d01430e42b3ecee6d2cf..6b3dbf8310a16544de88d96c000fbe087df1ec4f 100644
+--- a/src/main/java/net/minecraft/server/DataConverterRegistry.java
++++ b/src/main/java/net/minecraft/server/DataConverterRegistry.java
+@@ -15,15 +15,33 @@ public class DataConverterRegistry {
+ 
+     private static final BiFunction<Integer, Schema, Schema> a = Schema::new;
+     private static final BiFunction<Integer, Schema, Schema> b = DataConverterSchemaNamed::new;
+-    private static final DataFixer c = b();
++    private static DataFixer c; // LightPaper - this has to be initialized later to allow for disabling
++    private static boolean disabled; // LightPaper
+ 
+     private static DataFixer b() {
+         DataFixerBuilder datafixerbuilder = new DataFixerBuilder(SharedConstants.getGameVersion().getWorldVersion());
+ 
+-        a(datafixerbuilder);
++        // LightPaper start
++        if (!disabled) {
++            a(datafixerbuilder);
++        } else {
++            MinecraftServer.LOGGER.warn("**** DATA CONVERSION IS DISABLED!");
++            MinecraftServer.LOGGER.warn("While this reduces startup time and CPU usage, attempting to load outdated " +
++                    "worlds or using legacy plugins might result in errors or even data corruption.");
++            MinecraftServer.LOGGER.warn("Run the server without the \"nodatafix\" option to enable data conversion");
++        }
++
+         return datafixerbuilder.build(SystemUtils.e());
+     }
+ 
++    // LightPaper start
++    public static void setDisabled(boolean disabled) {
++        DataConverterRegistry.disabled = disabled;
++        if (c == null) c = b();
++    }
++    public static boolean isDisabled() { return disabled; }
++    // LightPaper end
++
+     public static DataFixer getDataFixer() { return a(); } // Paper - OBFHELPER
+     public static DataFixer a() {
+         return DataConverterRegistry.c;
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 2f29d7040d37e8be2ba5f8f634011e069a07db2f..32b2268e7834768b7a3242c69cb5212901763256 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -57,6 +57,7 @@ public class Main {
+ 
+         try {
+             CrashReport.h();
++            DataConverterRegistry.setDisabled(optionset.has("nodatafix") || optionset.nonOptionArguments().contains("nodatafix")); // LightPaper
+             DispenserRegistry.init();
+             DispenserRegistry.c();
+             SystemUtils.l();
+diff --git a/src/main/java/net/minecraft/server/SystemUtils.java b/src/main/java/net/minecraft/server/SystemUtils.java
+index e8075ad6b5395c7dce12741fe85dafd13f72cf41..0d2dbc889abf67d4bebae41dda4f7eb38b5f243a 100644
+--- a/src/main/java/net/minecraft/server/SystemUtils.java
++++ b/src/main/java/net/minecraft/server/SystemUtils.java
+@@ -175,6 +175,8 @@ public class SystemUtils {
+     private static Type<?> b(TypeReference typereference, String s) {
+         Type type = null;
+ 
++        if (DataConverterRegistry.isDisabled()) return type; // LightPaper
++
+         try {
+             type = DataConverterRegistry.a().getSchema(DataFixUtils.makeKey(SharedConstants.getGameVersion().getWorldVersion())).getChoiceType(typereference, s);
+         } catch (IllegalArgumentException illegalargumentexception) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index bac292e6d8e6cdb239d8accd21eaa25022f5640f..2382958e3208ab62456afb02722c12f5eb38cece 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -146,6 +146,10 @@ public class Main {
+                         .defaultsTo("Unknown Server")
+                         .describedAs("Name");
+                 // Paper end
++
++                // LightPaper start
++                acceptsAll(asList("nodatafix"), "Disables data conversion");
++                // LightPaper end
+             }
+         };
+ 
